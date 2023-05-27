@@ -9,6 +9,7 @@ namespace Lab2_2.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+            Database.EnsureCreated();
         }
 
         public DbSet<Person> Persons { get; set; }

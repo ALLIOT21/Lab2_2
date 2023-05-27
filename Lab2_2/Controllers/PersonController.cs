@@ -21,7 +21,7 @@ namespace Lab2_2.Controllers
         public async Task<IActionResult> Index()
         {
               return _context.Persons != null ? 
-                          View(await _context.Persons.ToListAsync()) :
+                          Ok(await _context.Persons.ToListAsync()) :
                           Problem("Entity set 'ApplicationDbContext.Persons'  is null.");
         }
 
@@ -41,19 +41,20 @@ namespace Lab2_2.Controllers
                 return NotFound();
             }
 
-            return View(person);
+            return Ok(person);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([Bind("Id,Name,Surname,Patronymic,BirthDate,Gender,IssueDate,IssuePlace")] Person person)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(person);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return BadRequest(person);
             }
-            return View(person);
+
+            _context.Add(person);
+            await _context.SaveChangesAsync();
+            return Ok();        
         }
 
         [HttpPost, ActionName("Edit")]
@@ -65,6 +66,7 @@ namespace Lab2_2.Controllers
                 {
                     _context.Update(person);
                     await _context.SaveChangesAsync();
+                    return Ok();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -77,9 +79,8 @@ namespace Lab2_2.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(person);
+            return BadRequest(person);
         }
 
         // POST: Person/Delete/5
@@ -97,7 +98,7 @@ namespace Lab2_2.Controllers
             }
             
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
         private bool PersonExists(int id)
